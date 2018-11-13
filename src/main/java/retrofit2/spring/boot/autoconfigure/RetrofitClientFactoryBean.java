@@ -6,8 +6,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * retrofit client factory bean
@@ -23,6 +23,9 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
 
     @Autowired
     private OkHttpClient okHttpClient;
+
+    @Autowired
+    Converter.Factory factory;
 
     public RetrofitClientFactoryBean() {
     }
@@ -54,9 +57,10 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
         }
         String url = environment.resolvePlaceholders(sb.toString());
         log.debug("{} base url is {}", retrofitInterface.getName(), url);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(factory)
                 .baseUrl(url)
                 .build();
         return retrofit.create(retrofitInterface);
