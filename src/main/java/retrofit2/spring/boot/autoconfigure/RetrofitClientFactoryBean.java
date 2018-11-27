@@ -9,6 +9,8 @@ import org.springframework.core.env.Environment;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
+import java.util.List;
+
 /**
  * retrofit client factory bean
  *
@@ -25,7 +27,7 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
     private OkHttpClient okHttpClient;
 
     @Autowired
-    Converter.Factory factory;
+    List<Converter.Factory> factories;
 
     public RetrofitClientFactoryBean() {
     }
@@ -58,11 +60,15 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
         String url = environment.resolvePlaceholders(sb.toString());
         log.debug("{} base url is {}", retrofitInterface.getName(), url);
 
-        Retrofit retrofit = new Retrofit.Builder()
+        Retrofit.Builder builder = new Retrofit.Builder()
                 .client(okHttpClient)
-                .addConverterFactory(factory)
-                .baseUrl(url)
-                .build();
+                .baseUrl(url);
+
+        for (Converter.Factory factory : factories) {
+            builder.addConverterFactory(factory);
+        }
+
+        Retrofit retrofit = builder.build();
         return retrofit.create(retrofitInterface);
 
     }

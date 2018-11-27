@@ -1,5 +1,6 @@
 package retrofit2.spring.boot.autoconfigure;
 
+import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -10,6 +11,8 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,8 +35,11 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public Converter.Factory factory() {
-        return GsonConverterFactory.create();
+    public List<Converter.Factory> factories() {
+        List<Converter.Factory> factories = new ArrayList<>();
+        GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
+        factories.add(GsonConverterFactory.create(gsonBuilder.create()));
+        return factories;
     }
 
 }
